@@ -1,0 +1,699 @@
+% !TeX program = lualatex
+\documentclass[12pt]{article}
+%verlinktes inhaltsverzeichnis
+\usepackage[colorlinks,
+pdfpagelabels,
+pdfstartview = FitH,
+bookmarksopen = true,
+bookmarksnumbered = true,
+linkcolor = black,
+plainpages = false,
+hypertexnames = false,
+citecolor = black] {hyperref}
+%inputenc: umlaute eingeben, fontenc: umlaute darstellen
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%neue deutsch rechtschreibung
+\usepackage[ngerman]{babel}
+%paar schöne erweiterungen für mathe
+\usepackage{amsmath,amssymb,amstext,amsthm}
+\usepackage[fleqn,tbtags]{mathtools}
+\numberwithin{equation}{subsection}
+
+\usepackage{luacode}
+\usepackage{tikz}
+\usetikzlibrary{graphs}
+
+\newtheorem{df}{Definition}
+\newtheorem{satz}{Satz}
+\newtheorem{lemma}{Lemma}
+\newtheorem{fakt}{Fakt}
+\newtheorem{korollar}{Korollar}
+
+\title{Baum, Wald, Fluss\\
+	Eine Einführung in die Graphentheorie}
+\author{Josua Kugler}
+
+\begin{document}
+	\maketitle
+	\tableofcontents
+	\pagebreak
+	\section{Einführung}
+	\subsection{Anwendungsbeispiele}
+	\begin{itemize}
+		\item Navigationssysteme
+		\item Straßennetze
+		\item Netzwerke(Internet)
+		\item Oberstufe: Kurseinteilungen
+		\item Familie
+		\item Darstellung von elektrischen Schaltungen
+		\item Rundreise durch Städte
+		\item Darstellung mehrdimensionaler Körper
+		\item Ereignisbäume
+		\item Datenbanken
+		\item Turnierplanaufstellung
+		\item Landkarten (Färbung)
+		\item ...
+	\end{itemize}
+	\subsection{Definitionen:} 
+	\begin{df}
+		Ein \textit{Graph} $G$ ist ein Tupel $G=(V,E)$ aus einer endlichen Knotenmenge $V$ und eine Kantenmenge $E\subseteq \{ e\in 2^V|\ |e|=2\}$
+	\end{df}
+	\paragraph{Bsp.:}
+	\begin{align*}
+		V&=\{a,b,c,d,e,f\}\\
+		E&=\{\{a,b\},\{a,e\},\{b,c\},\{b,d\},\{c,d\},\{d,e\},\{d,f\}\}
+	\end{align*}
+	\paragraph{Variationen:}
+	\begin{itemize}
+		\item \textit{Multigraph:} mehrere Kanten zwischen zwei Knoten möglich
+		\subitem Bsp.: chemische Moleküle, Stromnetze mit Redundanz
+		\item \textit{gerichteter Graph}: Kanten sind Tupel(mit Reihenfolge)
+		\subitem Bsp.: Einbahnstraße, Stromkreise
+		\item \textit{gewichteter Graph}: zusätzliche Funktion w: $E\to\mathbb{R}_{>0}$
+		\subitem Bsp.: Wegberechnung/Navigation
+		\item \textit{Schleifen}: $|e|=1$ zulässig
+		\subitem Bsp.: Arbeitsabläufe
+		\item \textit{unendliche Graphen}: $V$ und $E$ potentiell unendlich
+		\subitem Bsp.: Spaß für Mathematiker
+		\item \textit{Hypergraph}: Kanten verbinden mehrere Knoten
+		\subitem größtenteils theoretische Anwendung
+	\end{itemize}
+	\subsubsection{spezielle Graphen}
+	\begin{itemize}
+		\item $K_n$ \textit{vollständige Graphen}
+		\subitem d.h. $K_4$ hat 4 Knoten und $4*3/2=6$ Kanten
+		\item $C_n$ Kreis mit $n$ Knoten
+		\subitem d.h. $C_5$ ist ein zusammenhängender Graph mit 5 Knoten und Kanten
+	\end{itemize}
+	\subsubsection{weitere Definitionen auf einem Graphen $G=(v,E)$}
+	\paragraph{Definitionen zu kleineren Teilen}
+	\begin{df}
+		Ein Graph $G'=(V',E')$ heißt \textit{Teilgraph} von $G$, wenn $V'\subseteq V$ und $E'\subseteq E$, sodass für alle $e=\{v_1,v_2\}\in E'$ auch $v_1,v_2\in V'$
+	\end{df}
+	\begin{df} 
+		Der Teilgraph $G'=(V',E')$ von $G$ heißt von $V'$ \textit{induzierter Teilgraph}, wenn er alle erlaubten Kanten $e\in E$ enthält.
+	\end{df}
+	\paragraph{Einführung einer lokalen Messgröße}
+	\begin{df} Sei $v\in V$ ein Knoten. Der \textit{Grad} von $v$, geschrieben $d(v)$, ist die Anzahl an Knoten, die v enthalten. Anders gesagt: $d(v)=|\{e\in E|\ v \in e\}|$
+	\end{df}
+	\begin{df}$E(v):=\{e\in E| v\in e\}$. Die so erreichten Knoten heißen \textit{Nachbarn} von $v$ und werden mit $N(v)$ bezeichnet.
+	\end{df}
+	\paragraph{globale Anwendungen der lokalen Messgröße:}
+	\begin{df} Das Minimum aller Grade der Knoten $v\in V$ wird mit $\delta$, das Maximum mit $\Delta$ bezeichnet.
+	\end{df}
+	\subparagraph{Fakt:} Die Summe $\sum\limits_{v\in V}d(v)$ ist gerade und $|E|=\dfrac{1}{2}*\sum\limits_{v\in V}d(v)$.
+	\begin{proof}
+		Jede Kante wird zwei mal gezählt, da sie mit zwei Knoten inzidiert. Daher ist die Summe aller Grade gerade und die Mächtigkeit der Kantenmenge  ($|E|$) entspricht der Hälfte der Summe der Grade($\dfrac{1}{2}*\sum_{v\in V}d(v)$).
+	\end{proof}
+	\begin{df} Ein \textit{Weg} der Länge $n$ ist eine Folge $v_0v_1...v_n$ von Knoten $v_i\in V$, sodass Kanten $e=\{v_{i-1},v_i\}\in E$ für $1\leq i \leq n$ existieren.
+	\end{df} Ein \textit{Pfad} ist ein Weg, bei dem alle Knoten paarweise verschieden sind.
+	\subparagraph{Bez.:} $v_0$ heißt Startknoten und $v_n$ Zielknoten
+	\begin{df} Der \textit{Abstand} $d(v,v')$ zwischen zwei Knoten $v,v'\in V$ ist die Länge eines kürzesten Pfades von $v$ nach $v'$. 
+	Gibt es keinen solchen Pfad, so setzen wir $d(v,v')=\infty$.\end{df}
+	\paragraph{weitere Definitionen}
+	\begin{df} Ein Graph $G=(V,E)$ heißt zusammenhängend, wenn zu je zwei Knoten $v_1,V_2 \in V$ ein Pfad $v_1$ nach $v_2$ in $G$ existiert.
+	\end{df} Die maximalen zusammenhängenden Teilgraphen heißen \textit{Zusammenhangskomponenten}.
+	\paragraph{Kreise}
+	\begin{df} Ist $v_0v_1...v_n$ ein Pfad und existiert $e_0=\{v_n,v_0\}\in E$, so ist $v_0v_1...v_nv_0$ ein Kreis.
+	\end{df}
+	\paragraph{Bäume}
+	\begin{df} Ein \textit{Wald} ist ein Graph ohne Kreise. Die Zusammenhangskomponenten eines Waldes heißen \textit{Bäume}
+	\end{df}
+	\section{Probleme:}
+	\subsection{Eulersches Brückenproblem}
+	\paragraph{Eulerweg:} läuft jede Kante genau 1 mal ab
+	\paragraph{Eulerkreis:} Eulerweg u. Startknoten=Endknoten
+	\paragraph{eulersche Graphen:} Ein Graph heißt \textit{eulersch}, wenn er einen Eulerkreis enthält
+	\subsection{Hamiltonische Graphen}
+	\paragraph{Hamiltonweg:} läuft jeden Knoten genau einmal ab
+	\paragraph{Hamiltonkreis:} Hamiltonweg u. Anfangsknoten=Endknoten
+	\paragraph{hamiltonische Graphen:} Ein Graph heißt \textit{hamiltonisch}, wenn er einen Hamiltonkreis enthält
+	\subsection{title}
+	\paragraph{k-dimensionaler Hyperwürfel}
+	\subparagraph{Konstruktion}
+	Man wähle alle Ortsvektoren, die als Komponenten nur 0 und 1 enthalten. Zwei Punkte sind dann benachbart, wenn sich ihre Ortsvektoren um eine Komponente unterscheiden
+	\paragraph{k-reguläre Graphen:} Alle Knoten haben den gleichen Grad
+	\paragraph{bipartite Graphen:} Die Knoten lassen sich in zwei Mengen unterteilen, sodass es zwischen den Knoten einer Menge keine Kanten gibt.
+	\paragraph{Liniengraphen:} Jede Kante des alten Graphen entspricht einem Knoten im Liniengraphen des ersten Graphen. 
+	\section{Formalismus}
+	\subsection{Logik}
+	\begin{itemize}
+		\item Ansicht: Mathematik ist eine Ansammlung von Beweisen
+		\item Grundlage: (Prädikaten-)logik
+		\subitem zwei Wahrheitswerte (wahr und falsch)
+		\subitem jede Aussage hat genau einen Wahrheitswert
+		\subitem Bsp. für Aussagen:
+		\subsubitem \textit{"Der Bundestag steht in Berlin"}
+		\subsubitem \textit{"Die Elbphilharmonie steht in München"}
+		\subsubitem \textit{"286 ist durch 13 teilbar"}
+		\subsubitem \textit{"51 ist eine Primzahl"}
+		\subitem Verknüpfung von Aussagen mit $\wedge,\ \vee,\ \neg,\ \to,\ \Leftrightarrow$
+		\subitem Prädikate: Aussagen mit Platzhalter (wie Funktionen)
+		\subitem Bsp.: $P(G,S):=$"G liegt in S."
+		\subsubitem oben: P(Bundestag, Berlin)
+		\subitem Alternative zum Einsetzen: Quantoren
+		\subsubitem Existenzquantor: $\exists$
+		\subsubitem Allquantor $\forall$
+		\subitem obiges Bsp.: $\forall G \exists S: P(G,S)$
+		\subitem anderes Bsp.: $\forall n > 0 \exists m | m \in \mathbb{P} \wedge n \leq m \leq 2n$
+		\item Gretchenfrage für Logiker: Axiome meistens: Zermelo-Fränkle Mengenlehre
+		\item Ableitungen: logische Schlussfolgerungen
+		\subitem Bsp.: "modus ponens": 
+		\subsubitem Wenn $P$ und $P\to Q$ wahr sind, dann ist auch $Q$ wahr
+	
+	\end{itemize}
+	\subsection{Beweise:}
+	\begin{df}
+		Beweis: Eine Ableitungskette aus den Axiomen
+	\end{df}
+	\paragraph{Beweistechniken:} Prinzipiell nur Anwendung der Ableitungsregeln, aber strukturierter und daher zugänglicher.
+	\begin{itemize}
+	\subsubsection{Direkter Beweis:}
+		\item Im Wesentlichen Abgrenzung zu den folgenden Techniken
+		\item Bsp.: Der Schnittpunkt der Winkelhalbierenden ist der Inkreismittelpunkt
+		\begin{proof}
+			Jeder Punkt auf den Winkelhalbierenden hat den gleichen Abstand zu den Schenkeln. 
+			Der Inkreismittelpunkt ist der Punkt, der zu allen Seiten den gleichen Abstand hat.
+			Der Schnittpunkt zweier Winkelhalbierender hat den gleichen Abstand zu allen drei Schenkeln=Dreiecksseiten.
+			Somit schneiden sich die drei Winkelhalbierenden im Inkreismittelpunkt.	
+		\end{proof}
+	
+	\subsubsection{Indirekter Beweis:}
+		\item Annahme des Gegenteils und Herleitung eines Widerspruchs
+		\item Bsp.: $\sqrt{2}$ ist irrational
+		\begin{proof}
+		\begin{align*}
+			\intertext{Annahme}
+			\sqrt{2}&=\dfrac{p}{q}&&\left|p,q\ \mathrm{teilerfremd}\wedge p,q \in \mathbb{Z}_+\right.
+			\intertext{Dann ist:}
+			2q^2&=p^2
+			\intertext{Zwei teilt die linke Seite, also auch die rechte Seite und somit $p$. Setze $p=2p'$ mit $p'\in\mathbb{Z}_+$ und erhalte:}
+			2q^2=(2p')^2&&\left|:2\right.\\
+			q^2=2p'^2
+		\end{align*}
+		Gleiches Vorgehen in der anderen Richtung liefert $q=2q'$ mit $q'\in \mathbb{Z}_+$.
+		Widerspruch, da $p$ und $q$ nicht teilerfremd, also Annahme falsch und Behauptung wahr.
+		\end{proof}
+
+		\subsubsection{(Gegen-)beispiel:}
+		\item zeige $\exists$-Aussage mit Beispiel oder widerlege $\forall$-Aussage mit Gegenbeispiel\\
+		\item Achtung!: Quantor ist relevant
+		\subsubsection{Kontraposition:}
+		\item Statt $A\to B$ zeigen wir die äquivalente Kontraposition: $\neg B\to\neg A$
+		\item Bsp.:
+		\begin{proof} Sei $n$ eine Quadratzahl. Aus $n$ gerade folgt $\sqrt{n}$ gerade.
+		\subsubitem Kontraposition: Aus $\sqrt{n}$ ungerade folgt n ungerade. Dann ist $\sqrt{n}=2m+1\ m\in \mathbb{Z}$. 
+		Somit folgt $n=(\sqrt{n})^2=(2m+1)^2=2*(2m^2+2m)+1$, also ungerade.
+		\end{proof}
+		\subsubsection{o.B.d.A.}
+		\subitem "\textbf{o}hne \textbf{B}eschränkung \textbf{d}er \textbf{A}llgemeinheit"
+		\subitem Falls Problem symmetrisch, wähle hübschen Fall
+		\subitem Bsp.: Zeige Aussage über den Abstand zweier Zahlen $m,n\in \mathbb{Z}$.
+		\begin{proof}
+		\subsubitem o.B.d.A. wähle $m\leq n$
+		\subsubitem $\to$ falls nicht tausche $m$ und $n$ (Symmetrie zwischen $m$ und $n$)
+		\subsubitem Jetzt ist der Abstand $\left|m-n\right|=m-n$.
+		\end{proof}
+		\subitem Achtung!: Leicht Fehler möglich
+	\end{itemize}
+	\section{Wissenschaft}
+	\begin{itemize}
+		\item Thesen/Theorien
+		\item Falsifizierbarkeit
+		\item Schlussfolgerungen
+		\item Empirik(Experimente, ...)
+		\item Gesellschafts-/Natur-/Geisteswissenschaften
+		\item Erkenntnis
+		\item Fortschritt\\
+		\subitem $\to$ Mathematik ist eher in der Nähe der Geisteswissenschaften
+		\subitem $\to$ Wissenschaft ist auch ein Kommunikationsproblem
+		\subitem Bsp.: \textit{abc-Vermutung}\\
+		2012 Mochizuki veröffentlicht interuniverselle Teichmüllertheorie,\\ aber bis heute unverstanden
+	\end{itemize}
+	\subsection{Anforderungen an ein wissenschaftliches Dokument:}
+	\begin{itemize}
+		\item klare Dokumentation
+		\item Schlüssigkeit(verständliche und korrekte Herleitung)
+		\item Einordnung in existierende (Zitation)
+		\item Relevanz
+	\end{itemize}
+	\section{Färbungen}
+	\subsection{Motivation:}
+	Angenommen, die Deutsche Schülerakademie 2028 hat sehr viele Subventionen erhalten. Sie möchte daher jedem Schüler ermöglichen, alle gewählten Kurse zu besuchen. 
+	Dennoch möchte sie natürlich so wenig wie möglich Akademien stattfinden lassen.
+	Wie viele Akademien müssen bei folgender Kurswahl mindestens stattfinden?\\\\
+	\begin{tabular}{c|c|c|c|c|c|c}\label{kurswahl}
+		 Zahlentheorie& Robotik & Astronomie & Ökologie & Wirtschaft & Biologie & Chemie\\\hline
+		T & P & P & A & N & N & N\\
+		C & J & A &   &   &   & A\\
+		  & T & J &   &   &   & J\\
+		  & C & C &   &   &   & T\\	
+	\end{tabular}
+	\\\\
+	Um dieses Problem zu lösen, wählen wir die Kurse als Knoten. Konflikte zwischen den Kursen, d.h. Kurse, die nicht gleichzeitig stattfinden dürfen, da sie beide von einem Teilnehmer gewählt wurden, werden als Kanten dargestellt.
+	Daraus ergibt sich die folgende Verteilung:\\
+	\begin{tikzpicture}[scale=0.5]
+		\node[draw,circle](As) at (6,0){As};
+		\node[draw,circle](Ro) at (0,6){Ro};
+		\node[draw,circle](Za) at (0,0){Za};
+		\node[draw,circle](Ök) at (9,0){Ök};
+		\node[draw,circle](Wi) at (9,3){Wi};
+		\node[draw,circle](Bi) at (12,6){Bi};
+		\node[draw,circle](Ch) at (6,6){Ch};
+		\draw (Ro)--(As);
+		\draw (Za)--(Ro);
+		\draw (Ro)--(Ch);
+		\draw (As)--(Ch);
+		\draw (Za)--(Ro);
+		\draw (Za)--(Ch);
+		\draw (As)--(Ök);
+		\draw (Ök)--(Ch);
+		\draw (Wi)--(Bi);
+		\draw (Bi)--(Ch);
+		\draw (Wi)--(Ch);
+		\draw (Za)--(As);
+	\end{tikzpicture}\\
+	Nun müssen die Kurse auf verschiedene Akademien verteilt werden, es dürfen also keine zwei über eine Kante verbundenen Knoten miteinander verbunden sein. Das entspricht der Aufgabe, die Knoten so zu färben, dass keine zwei verbundenen Knoten die gleiche Farbe haben. In diesem Fall ist das mit 4 Farben möglich:\\
+	\begin{tikzpicture}[scale=0.5]
+	\node[draw,circle,red](As) at (6,0){As};
+	\node[draw,circle,blue](Ro) at (0,6){Ro};
+	\node[draw,circle,green](Za) at (0,0){Za};
+	\node[draw,circle,blue](Ök) at (9,0){Ök};
+	\node[draw,circle,red](Wi) at (9,3){Wi};
+	\node[draw,circle,blue](Bi) at (12,6){Bi};
+	\node[draw,circle,yellow](Ch) at (6,6){Ch};
+	\draw (Ro)--(As);
+	\draw (Za)--(Ro);
+	\draw (Ro)--(Ch);
+	\draw (As)--(Ch);
+	\draw (Za)--(Ro);
+	\draw (Za)--(Ch);
+	\draw (As)--(Ök);
+	\draw (Ök)--(Ch);
+	\draw (Wi)--(Bi);
+	\draw (Bi)--(Ch);
+	\draw (Wi)--(Ch);
+	\draw (Za)--(As);
+	\end{tikzpicture}\\
+	\subsection{Definitionen}
+	\begin{df}
+		Eine \textit{k-Färbung} eines Graphen $G=(V,E)$ ist eine Funktion $c:\ V\to\{1,2,...,k\}$ sodass für jede Kante $e=\{v_1,v_2\}$ gilt: $c(v_1)\neq c(v_2)$
+	\end{df}
+	\begin{df}
+		Ein Graph ist \textit{k-färbbar}, wenn es eine $k$-Färbung des Graphen gibt.
+	\end{df}
+	\begin{df}
+		Die \textit{chromatische Zahl $\chi(G)$} eines Graphen ist das kleinste $k$, sodass $G$ $k$-färbbar ist.
+	\end{df}
+	\subsection{realistisches Anwendungsbeispiel}
+	Nun modifizieren wir die Fragestellung leicht. Die DSA 2038 ist zu noch mehr Geld gekommen und bietet nun jedem Schüler Einzelunterricht an. Wie viele Akademien werden nun benötigt, sodass auf keiner Akademie zweimal der gleiche Kurs angeboten wird und jede der Kurswahlen aus \ref{kurswahl} berücksichtigt wird. Dafür müssen wir immer noch alle Kurse als Knoten darstellen. Da es jetzt jedoch nicht nur Konflikte zwischen den Kursen bezüglich der Akademien gibt, sondern auch noch Konflikte der Schüler bezüglich der Kurse, benötigen wir eine andere Herangehensweise. Zunächst stellen wir die Schüler als Knoten dar und verbinden sie mit den Kursen, die sie besuchen möchten.
+	\begin{tikzpicture}\\
+		%Kurse
+		\node[draw,circle](As) at (0,0){As};
+		\node[draw,circle](Ro) at (0,1){Ro};
+		\node[draw,circle](Za) at (0,2){Za};
+		\node[draw,circle](Ök) at (0,3){Ök};
+		\node[draw,circle](Wi) at (0,4){Wi};
+		\node[draw,circle](Bi) at (0,5){Bi};
+		\node[draw,circle](Ch) at (0,6){Ch};
+%		%Schüler
+		\node[draw,circle](A) at (6,1){A};
+		\node[draw,circle](C) at (6,2){C};
+		\node[draw,circle](J) at (6,3){J};
+		\node[draw,circle](N) at (6,4){N};
+		\node[draw,circle](P) at (6,5){P};
+		\node[draw,circle](T) at (6,6){T};
+		%Kurswahlen
+		\draw (Za)--(T);
+		\draw (Za)--(C);
+		\draw (Ro)--(P);
+		\draw (Ro)--(C);
+		\draw (Ro)--(J);
+		\draw (Ro)--(T);
+		\draw (As)--(P);
+		\draw (As)--(J);
+		\draw (As)--(A);
+		\draw (As)--(C);
+		\draw (Ök)--(A);
+		\draw (Wi)--(N);
+		\draw (Bi)--(N);
+		\draw (Ch)--(N);
+		\draw (Ch)--(A);
+		\draw (Ch)--(J);
+		\draw (Ch)--(T);
+	\end{tikzpicture}\\
+	In diesem Fall macht es also keinen Sinn, die Knoten zu färben, da bei einem bipartiten Graphen immer 2 Farben ausreichen. Um die Konflikte zwischen den Kurswahlen darzustellen, muss man die Kanten färben, sodass keine zwei mit dem selben Knoten inzidierenden Kanten dieselbe Farbe haben.\\
+	\begin{tikzpicture}[baseline=1]
+	%Kurse
+	\node[draw,circle](As) at (0,0){As};
+	\node[draw,circle](Ro) at (0,1){Ro};
+	\node[draw,circle](Za) at (0,2){Za};
+	\node[draw,circle](Ök) at (0,3){Ök};
+	\node[draw,circle](Wi) at (0,4){Wi};
+	\node[draw,circle](Bi) at (0,5){Bi};
+	\node[draw,circle](Ch) at (0,6){Ch};
+	%Schüler
+	\node[draw,circle](A) at (6,1){A};
+	\node[draw,circle](C) at (6,2){C};
+	\node[draw,circle](J) at (6,3){J};
+	\node[draw,circle](N) at (6,4){N};
+	\node[draw,circle](P) at (6,5){P};
+	\node[draw,circle](T) at (6,6){T};
+	%Kurswahlen
+	\draw[green] (Za)--(T);
+	\draw[red] (Za)--(C);
+	\draw[red] (Ro)--(P);
+	\draw[blue] (Ro)--(C);
+	\draw[green](Ro)--(J);
+	\draw[yellow](Ro)--(T);
+	\draw[blue] (As)--(P);
+	\draw[yellow] (As)--(J);
+	\draw[red] (As)--(A);
+	\draw[green] (As)--(C);
+	\draw[yellow] (Ök)--(A);
+	\draw[green] (Wi)--(N);
+	\draw[red] (Bi)--(N);
+	\draw[yellow] (Ch)--(N);
+	\draw[green] (Ch)--(A);
+	\draw[red] (Ch)--(J);
+	\draw[blue] (Ch)--(T);
+	\end{tikzpicture}\\
+	Es reichen also auch in diesem Fall 4 Farben aus.
+	\subsection{weitere Definitionen}
+	\begin{df}
+		Eine \textit{$k$-Kantenfärbung} ist eine Funktion $c:E\to \{1,...,k\}$, sodass für jeden Knoten $v$ gilt:\\
+		Für alle $e_1,e_2\in E$ mit $v\in e_1,v\in e_2$ gilt $c(e_1)\neq c(e_2)$.\\
+		$\to$ $k$-kantenfärbbar
+	\end{df}
+	\begin{df}
+		Der chromatische Index $\chi'(G)$ eines Graphen $G$ ist das kleinste $k$, sodass $G$ $k$-kantenfärbbar ist.
+	\end{df}
+
+	\section{Planarität}
+	\begin{df}
+		Ein Graph heißt \textit{planar}, wenn er sich so in die Ebene einbetten lässt, dass sich keine Kanten überschneiden.
+	\end{df}
+	$\to$planare Graphen sind anwendungsorientiert und haben eine interessante Theorie
+	\begin{lemma}
+		Sei $G=(V,E)$ ein planarer Graph mit min. drei Knoten. Dann gilt:\\
+		$$|E|\leq 3|V|-6$$\\
+	\end{lemma}
+	\underline{Motivation:} gilt für die feinsten planaren Graphen: Triangulationen
+	\begin{proof}
+		Induktion nach $|V|$\\
+		O.b.d.A Graph trianguliert, da dann linke Seite der Ungleichung maximal
+		\textbf{IA:}
+		\begin{tikzpicture}
+			\node[circle,draw](1) at (0,0){};
+			\node[circle,draw](2) at (1,0){};
+			\node[circle,draw](3) at (0.5,0.5){};
+			\draw (1)--(2);
+			\draw (2)--(3);
+			\draw (3)--(1);
+		\end{tikzpicture}
+		Richtig!\\
+		\textbf{IV:} Für alle triangulierten Graphen mit $|V|=k$ gilt:\\
+		$|E|\leq 3|V|-6$\\
+		\textbf{IS}$(k\to k+1)$:\\
+		Problem: Nicht jeder triangulierte Graph mit $k+1$ Knoten lässt sich aus einem triangulierten Graphen mit $k$ Knoten durch Hinzufügen eines Knotens erstellen (da max. drei Kanten hinzukommen)
+		Starte mit $G=(V,E)$ mit $|V|=k+1$ trianguliert. Lösche Knoten $v$ mit Grad $d$, erhalte $G'$.
+		\begin{tikzpicture}
+			%\node(graph) at (0,6){G}
+			\node[circle,draw](1) at (0,3){};
+			\node[circle,draw](2) at (0,1){};
+			\node[circle,draw](3) at (2,0){};
+			\node[circle,draw](4) at (4,1){};
+			\node[circle,draw](5) at (4,3){};
+			\node[circle,draw](6) at (2,4){};
+			\node[circle,draw](c) at (2,2){};
+%			\node(graph) at (6,6){G'}
+%			\node[circle,draw](1) at (6,3){};
+%			\node[circle,draw](2) at (6,1){};
+%			\node[circle,draw](3) at (8,0){};
+%			\node[circle,draw](4) at (10,1){};
+%			\node[circle,draw](5) at (10,3){};
+%			\node[circle,draw](6) at (8,4){};
+%			\node[circle,draw](c) at (8,2){};
+		\end{tikzpicture}\\
+		Um die IV anwenden zu können müssen wir $G'$ triangulieren. Ist $d=3$(d<3 ist unmöglich), so ist $G'$ bereits trianguliert.\\
+		Falls $d>3$ so zeichnen wir Diagonalen des $d-Ecks$ ein, sodass $G'$ zu $G''$ trianguliert wird; dabei dürfen keine Doppelkanten entstehen.
+		Existiert eine problematische Kante, die zwei im $d$-Eck nicht-benachbarte Knoten verbindet, so wählen wir einen kürzesten Kantenzug des $d$-Ecks, dessen Endpunkte durch eine problematische Kante verbunden sind; die Punkte im Inneren des Kantenzugs haben keine problematischen Kanten. Durch die Triangulation von $G'$ kommen $d-3$ Kanten hinzu. Nach IV ist\\
+		$|E'|+d-3\leq 3|V'|-6$
+		Nun ist $|E''|$:
+		\begin{align}
+			|V|&=|V'|+1\\
+			|E|&=|E'|+d
+			\intertext{Also einsetzen:}
+			(|E|-d)+d-3&\leq 3(|V|-1)-6
+			\to\hspace{5mm}|E|&\leq3|V|-6
+		\end{align}
+	\end{proof}
+	\begin{fakt}
+		$K_5$ und $K_{3,2}$ sind nicht planar.
+	\end{fakt}
+	\begin{proof}
+		$K_5$:
+		\begin{align}
+			|V|&=5\\
+			|E|&=\binom{5}{2}=10
+			\intertext{Dann ist:}
+			3|V|-6&=9
+			\intertext{also}
+			|E|&>3|V|-6
+		\end{align}
+		und somit nach dem Lemma $K_5$ nicht planar.
+		$K_{3,3}$:\\
+		
+		\begin{tikzpicture}
+			\node[circle,draw](1) at (0,0){1};
+			\node[circle,draw](2) at (0,1){2};
+			\node[circle,draw](3) at (0,2){3};
+			\node[circle,draw](4) at (2,0){4};
+			\node[circle,draw](5) at (2,1){5};
+			\node[circle,draw](6) at (2,2){6};
+			\draw (1)--(4);
+			\draw (1)--(5);
+			\draw (1)--(6);
+			\draw (2)--(4);
+			\draw (2)--(5);
+			\draw (2)--(6);
+			\draw (3)--(4);
+			\draw (3)--(5);
+			\draw (3)--(6);	
+		\end{tikzpicture}\\
+		Suche einen Kreis als Teilgraphen und bette ihn o.B.d.A. planar ein.\\
+		\begin{tikzpicture}
+		\node[circle,draw](1) at (3,2){1};
+		\node[circle,draw](2) at (3,0){2};
+		\node[circle,draw](3) at (1,1){3};
+		\node[circle,draw](4) at (4,1){4};
+		\node[circle,draw](5) at (2,2){5};
+		\node[circle,draw](6) at (2,0){6};
+		\draw (1)--(4);
+		\draw (1)--(5);
+		\draw (2)--(4);
+		\draw (2)--(6);
+		\draw (3)--(5);
+		\draw (3)--(6);
+		\end{tikzpicture}\\
+		Die drei verbliebenem Kanten sind die langen Diagonalen, von denen nur zwei überschneidungsfrei Platz finden.\\	
+	\end{proof}
+	\begin{korollar}
+		Für planare Graphen gilt, dass $\delta \leq5.$
+	\end{korollar}
+	\begin{proof}
+		Es ist:
+		$\dfrac{1}{2}*|V|*G\leq |E|\leq 3*|V|-6\\
+		\to G\leq6-\dfrac{12}{|V|}<6$
+	\end{proof}
+
+	\section{Algorithmen}
+	\subsection{Was ist ein Algorithmus?}
+	\begin{itemize}
+		\item Verfahren zur Lösung eines wohlspezifierten Problems
+		\item Input/Eingabe
+		\item Sequenz von (elementaren?) Operationen(üblicherweise deterministisch)
+		\item endliche Beschreibung
+		\item Terminierung, endliche Anzahl an ausgeführten Schritten
+	\end{itemize}
+	\subsection{Wie kann ich einen Algorithmus auf-/beschreiben?}
+	\begin{itemize}
+		\item Worte
+		\item Flowchart
+		\item formalisiert/mathematisch
+		\item Pseudo-Code
+		\item Programmiersprache
+		\item Turingmaschine
+	\end{itemize}
+	\subsection{Wann ist ein Algorithmus gut?}
+	\begin{itemize}
+		\item kurze Laufzeit
+		\item wenig Speicherplatz
+		\item Einfachheit
+		\item Erweiterbarkeit
+	\end{itemize}	
+	\subsubsection{Was heißt kurze Laufzeit?}
+	\begin{itemize}
+		\item kleine Anzahl ausgeführter Elementaroperationen
+		\subitem $\to$ Laufzeitklassen
+		\begin{align*}
+			&O(n)\\
+			&O(n^2)\\
+			&O(2^n)\\
+		\end{align*}
+		\item Abhängigkeit von Inputgröße
+		\subitem n: \#Knoten($n=|V|$), $m=|E|$
+		\item (average case vs.)worst case
+		\item Interesse an $n\to\infty$
+		\item theoretisch vs. experimentell
+	\end{itemize}
+\section{Python}
+\subsection{Zen of Python}
+\begin{itemize}
+	\item Es sollte genau einen offensichtlichen Weg geben, etwas zu tun
+\end{itemize}
+\begin{center}
+	\tikz \graph [nodes={circle,draw}]{
+		d--e;
+		f--g--h--d--f;
+		e--g;e--h;
+	};
+\end{center}
+\section{Planarität}
+\begin{itemize}
+	\item jeder Teilgraph eines planaren Graphen ist planar
+	\item Unterteilung von Kanten ändert nichts an Planarität 
+\end{itemize}
+\begin{df}
+	Ein Graph $T$ ist topologischer Minor eines Graphen $G$, falls $G$ einen Teilgraphen $G'$ besitzt, sodass $G'$ durch Kantenunterteilung aus $T$ hervorgeht.
+	Bsp.:
+	\begin{figure}[h]
+	
+		\tikz \graph [nodes={circle,draw}]{
+		a--b;
+		b--c;
+		a--c;
+		};
+	\caption{T}
+	
+		\tikz \graph [nodes={circle,draw}]{
+		d--e;e--f;e--g;f--i;g--h;h--i;h--j;i--k;k--j;};
+	\end{figure}
+\end{df}
+\begin{fakt}
+	Ein Graph der $K_5$ oder $K_{3,3}$ als topologischen Minor enthält, ist nicht planar. 
+\end{fakt}
+\begin{satz}
+	Satz von Kuratowski:\\
+	Ein Graph ist genau dann planar, wenn er weder $K_5$ noch $K_{3,3}$ als topologischen Minor enthält
+\end{satz}
+\begin{proof}
+	Satz von Kuratowski:
+\end{proof}
+\section{Topologie}
+Anwendungsfrage: Sphäre oder Ebene $\to$ Unterschied?
+Geometrisch: ja
+in unserer Anwendung(Graphentheorie). Nein
+$\to$ stereographische Projektion
+andere Fläche: Torus(Donut)
+\begin{itemize}
+	\item kompakte, orientierbare Mannigfaltigkeiten: charakterisiert durch die Anzahl der Löcher
+\end{itemize}
+Bsp.: Doppeltorus(Zwei Löcher)
+Verklebungen: 3-dimensionale Darstellung oft nicht so handhabbar, daher 2-dimensionale Alternative
+
+
+\section{Matchings}
+\begin{df}
+	Ein \textbf{Matching} ist eine Untermenge $M$ der Kantenmenge $E$, sodass für alle $e,e'\in M$ gilt $e\AA$
+\end{df}
+\begin{df}
+	Ein Matching $M$ heißt \textbf{kardinalitätsmaximal}, wenn es kein Matching $M'$ gibt, sodass $|M'|>\dfrac{1}{2}|V|$.
+\end{df}
+\begin{df}
+	Ein Matching $M$ heißt \textbf{perfekt}, wenn $|M|=\dfrac{1}{2}|V|$
+\end{df}
+\begin{df}
+	Ein Matching $M$ heißt \textbf{inklusionsmaximal}, wenn kein Matching $M'$ existiert, sodass $M\subsetneq'M'.$
+\end{df}
+\begin{df}
+	Ein Matching heißt \textbf{stabil}, wenn für jedes Paar $x\in X, y\in Y$ und $\{x,y\}\notin M$ gilt: $x$ bevorzugt seinen derzeitigen Partner gegenüber $y$ oder $y$ bevorzugt seinen derzeitigen Partner gegenüber $x$
+\end{df}
+\subsection{Algorithmus}
+\begin{enumerate}
+	\item Alle $x\in X$ machen Antrag an präferiertes $y\in Y$
+	\item Jedes $y\in Y$, das einen Antrag erhalten hat, nimmt den präferiertesten Antrag an
+	\item nicht-gematchte $x\in X$ machen Antrag an nächstbestes $y\in Y$\\
+	\to goto 2.
+	\item Wenn alle $x\in X$ gematcht, Ende
+\end{enumerate}
+\section{Approximationsalgorithmen}
+\subsection{Arten von Problemen}
+\begin{itemize}
+	\item Entscheidungsproblem
+	\item Funktionsproblem: beliebige Ausgabe
+	\item Optimierungsprobleme: Menge von zulässigen Lösungen, finde möglichst gute Lösung aus dieser Menge.  \glqq Gut \grqq\ heißt dabei
+	\subitem möglichst groß \to Maximierungsproblem
+	oder
+	\subitem möglichst klein \to Minimierungsproblem
+\end{itemize}
+Maximierungsproblem:
+OPT: Größe der optimalen Lösung 
+Wir wollen: Größe der Ausgabe des Approximationsalgorithmus ist $\geq k*OPT$
+k: Approximationsfaktor
+Bsp.:
+\begin{itemize}
+	\item Greedy-Algorithmus: Approximationsfaktor k=2
+\end{itemize}
+Minimierungsproblem
+$|$Lösung$|\leq k*OPT$
+\subsection{TSP}
+Input: vollst. gewichteter Graph [Der die Dreiecksgleichung erfüllt(=metrisches TSP)]
+Aufgabe: Finde kostenminimalen Hamiltonkreis
+\paragraph{Christofides' Algorithmus(1976)}
+\begin{enumerate}
+	\item Finde MST T
+	\item Finde kostenmin. perfektes Matching M im von den Knoten mit ungeradem Grad (im MST) induzierten Teilgraphen
+	\item Kombiniere T und M zu einem Eulerschen Graphen G'
+	\item Finde einen Eulerkreis C in G'.
+	\item Transformiere C in einen Hamiltonkreis H durch Überspringen von wiederholten Knoten
+\end{enumerate}
+\section{Skalenfreie Graphen}
+\begin{df}
+	Sei $G$ ein zusammenhängender Graph und $P(k)$ der Anteil der Knoten mit Grad $k$. Dann heißt $G$ skalenfrei, falls die Knotengrade einem Potenzgesetz folgen:
+	$P(k)\propto k^-\alpha$ mit Skalierungsfaktor $\alpha$.	
+\end{df}
+Normalerweise $1\leq\alpha\leq3$
+Beh.: soziale Netze sind skalenfreie Graphen
+Motivation:
+skalenfreie Graphen entstehen durch den Zufallsprozess preferential attachment
+\begin{itemize}
+	\item fester Knotengrad
+	\item bilde Graph durch schrittweises Hinzufügen von Knoten
+	\item Kanten der neuen Knoten gehen bevorzugt zu Knoten mit vielen Kanten
+\end{itemize}
+Vergleich zu Fraktalen:
+selbstähnlich
+Bsp.: Kochkurve
+\begin{tikzpicture}
+\node (0) at (-2,0){$i=0$};
+	\draw (-1,0)--(2,0);
+\node (1) at (-2,-1){$i=1$};
+	\draw (-1,-1)--(0,-1);
+	\draw (0,-1)--(0.5,-0.5);
+	\draw (0.5,-0.5)--(1,-1);
+	\draw (1,-1)--(2,-1);
+\end{tikzpicture}
+Problem: Selbstähnlichkeit folgt nicht aus Potenzgesetz
+\subsection{Feldexperiment}
+\subsubsection{Daten und ihr Eigenleben}
+\begin{itemize}
+	\item Neben Datenmissbrauch gibt es auch unintentionale Nebenwirkungen von (vorzugsweise großen) Datensammlungen
+	\item Bsp.: Netflix Prize Challenge
+	\subitem\to Aufgabe: Sage Präferenz für Filme auf Grundlage der Historie voraus
+	\subitem\to Veröffentlichung eines anonymisierten Datensatzes
+	\subitem\to Forscher korrelierten diese Informationen mit IMDB-Profilen und konnten so deanonymisieren
+\end{itemize}
+$\lceil x\rceil$
+\end{document}

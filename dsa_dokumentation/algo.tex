@@ -1,0 +1,85 @@
+\section{Approximationsalgorithmen}
+\authors{Anja Voigt und Janek Paeßens}
+
+Die verschiedenen Problemstellungen, die man mit Hilfe von Algorithmen lösen kann, lassen sich im Wesentlichen in die folgenden drei Kategorien einordnen.
+\begin{enumerate}
+\item \wichtig{Entscheidungsprobleme:} Ausgabe \glqq ja\grqq{} oder \glqq nein\grqq
+\item \wichtig{Funktionsprobleme:} Ausgabe ist oft ein Objekt, bspw. ein Graph mit bestimmten Eigenschaften
+\item \wichtig{Optimierungsprobleme:} Aus einer Menge von zulässigen Lösungen soll die beste ausgewählt werden, das heißt, sie soll je nach Kontext möglichst groß (Maximierungsproblem) oder möglichst klein (Minimierungsproblem) sein.
+\end{enumerate}
+
+Approximationsalgorithmen lösen Probleme der dritten Kategorie. Sie versuchen möglichst gute Lösungen für ein Problem zu finden, die nicht immer optimal sind, aber möglichst nah an die optimale Lösung gelangen. Je nachdem, ob der Approximationsalgorithmus ein Maximierungs- oder Minimierungsproblem lösen soll, gibt es verschiedene untere oder obere Schranken, für die Ausgabe des Approximationsalgorithmus.
+
+Bei Maximierungsproblemen die durch einen Approximationsalgorithmus bearbeitet werden, sollen die Ausgaben mindestens so groß sein, wie die optimale Lösung geteilt durch den Approximationsfaktor, der angibt, wie nah man an der optimalen Lösung ist. Je kleiner dieser Faktor $k$ ist, desto besser ist die Lösung. Die Ausgabe $x$ soll also folgender Ungleichung genügen $x\geq \frac{OPT}{k}$, wobei OPT die Größe der optimalen Lösung bezeichnet. Für $k$ gilt $k\geq 1$.
+
+Bei Minimierungsproblemen genügen alle möglichen Ausgaben $x$ der Ungleichung $x\leq k\cdot OPT$, wobei $OPT$ und $k$ die gleichen Bedingungen erfüllen wie bei den Maximierungsproblemen.
+
+%\begin{table*}
+%	\centering
+%	\begin{tabular}{c|c}
+%		 Minimierung & Maximierung\\\hline
+%		$ \geq k\cdot OPT $ &$ \geq \frac{OPT}{k} $\\
+%	\end{tabular}
+%	\caption{Begrenzungen Minimierung und Maximierung}
+%	\label{min/max}
+%	\end{table*}
+
+\subsection{Ein Greedy-Algorithmus zur Bestimmung eines inklusionsmaximalen Matchings}
+Folgend soll ein Algorithmus vorgestellt werden, der ein inklusionsmaximales Matching in einem Graphen findet. Dieser Algorithmus gehört zur Klasse der Greedy-Algorithmen. Dabei wird jeweils eine Kante $e$ dem Matching hinzugefügt. Anschließend werden alle zu $e$ benachbarten Kanten aus der Menge aller möglichen Kanten entfernt. Dies wird nun für die Menge aller verbleibenden Kanten so oft wiederholt, bis keine mögliche Kante mehr übrig ist. So wird ein inklusionsmaximales Matching erzeugt, da am Schluss dem Matching keine Kante mehr hinzugefügt werden kann.
+
+\begin{df}
+Der minimale Spannbaum $G'=(V',E')$ eines gewichteten, zusammenhängenden Graphen $G=(V,E)$, ist ein Baum, für den $V=V'$ und $E'\subset E$ gilt und in dem die Summe aller Kantengewichte minimal ist.
+\end{df}
+
+\subsection{Das Travelling Salesman Problem}
+Das \textbf{Travelling Salesman Problem}, kurz TSP, bezeichnet ein Minimierungsproblem, bei dem für einen Handelsreisenden, der $n$ Städte besuchen und am Ende wieder an seinem Ausgangspunkt ankommen will, die kürzeste Route gesucht wird. Einfacher ausgedrückt wird in einem vollständigen, mit der Funktion $w:E\rightarrow \mathbb{R}_{>0}$ kanten-gewichteten, Graphen $G=(V,E)$ der Hamiltonkreis mit geringstem Gesamtkantengewicht gesucht.
+Für unsere Überlegungen betrachten wir einen Spezialfall des TSP, das sogenannte metrische Travelling Salesman Problem. Hierfür nehmen wir den Graphen als metrisch an, das heißt, die Gewichte der Kanten jedes Dreiecks $\{v_1,v_2,v_3\}$ mit $v_1,v_2,v_3\in V$ genügen der Dreiecksungleichungen $w(\{v_1,v_2\})\leq w(\{v_1,v_3\})+w(\{v_2,v_3\})$. Zunächst berechnet der Algorithmus den minimalen Spannbaum des Graphen $G$. Um in diesem nun eine Route zu finden, in der alle Knoten enthalten sind, muss man alle Kanten des minimalen Spannbaums doppelt ablaufen. Diese Route ist die Ausgabe des Algorithmus.
+Dieser löst das metrische Travelling Salesman Problem mit Approximationsfaktor $k=2$. Hierzu sei $H$ folgend der optimale Hamiltonkreis  des Graphen $G$. Ausgehend von diesem wird genau eine Kante entfernt, sodass ein Baum $B=(V_B,E_B)$ entsteht. Dieser Baum besitzt mindestens die gleiche Gesamtkantengewicht wie der minimale Spannbaum $S=(V_{S},E_{S})$ des Graphen $G$, sodass gilt 
+\begin{align*}
+\sum\limits_{e\in E_B}w(e)\geq \sum\limits_{e\in E_{S}}w(e).
+\end{align*}
+Da weiterhin die optimale Lösung $H$ den Spannbaum $B$ enthält, gilt
+\begin{align*}
+\sum\limits_{e\in H}w(e)\geq \sum\limits_{e\in E_{S}}w(e).
+\end{align*}
+ Um auf $S$ eine Route $T$ zu laufen, muss man hier jede Kante genau zweimal ablaufen, um zum Anfangsknoten zurückzukehren. Daher gilt
+\begin{align*}
+\sum\limits_{e\in T}w(e)=2 \sum\limits_{e\in E_{S}}w(e).
+\end{align*}
+Wenn die beiden Ungleichungen kombiniert werden, ergibt sich
+\begin{align*}
+\sum\limits_{e\in T}w(e)\leq 2 \sum\limits_{e\in H}w(e).
+\end{align*}
+Mit diesem Algorithmus erreicht man also den Approximationsfaktor von $k=2$.
+
+\subsection{Algorithmus von Christofides}
+Der Algorithmus nach Christofides liefert für einen vollständigen metrischen Graphen $G_0=(V,E)$, der mit der Funktion $w:E\rightarrow  \mathbb{R}_{>0}$ kanten-gewichtet ist, eine noch bessere Annäherung an das Optimum. Dieser soll folgend erläutert werden.
+
+\begin{enumerate}
+\item Finde einen minimalen Spannbaum $T$ von $G_0$.
+\item Finde ein kostenminimales perfektes Matching $M$ des von den Knoten mit ungeradem Grad induzierten Teilgraphen $U$. Dies ist möglich, weil die Summe aller Grade der Knoten eines Graphen gerade ist, wodurch es eine gerade Anzahl von Knoten ungeraden Grades gibt.
+\item Kombiniere $M$ und $T$ zu einem gemeinsamen Graphen $G$. Dieser ist dann eulersch, weil durch das in Schritt 2 gefundene matching alle Grade gerade gemacht werden.
+\item Finde einen Eulerkreis $C$ in $G$.
+\item Transformiere $C$ in einen Hamiltonkreis $H$, indem man von einem beliebigen Knoten ausgehend den Eulerweg abläuft. Die bereits abgelaufenen Knoten werden dann jedoch übersprungen, indem man die Kante vom Vorgänger des jeweiligen Knotens zu dem Knoten abläuft, der darauf folgen würde. Da der Graph metrisch ist, ist diese Kante maximal so groß wie die Summe der Gewichte der übersprungenen Kanten.
+\end{enumerate}
+
+Folgend sei $w(P)$ für eine Kantenmenge P die Summe der Kantengewichte der Kanten in P. Sei nun $H'$ der optimale Hamiltonweg. Es gilt $w(H)\leq w(C)$, da das Gesamtkantengewicht des Hamiltonkreises stets maximal so groß ist wie das Gesamtkantengewicht des Eulerkreises. Weiterhin ist $w(C)=w(T)+w(M)$, da $C$ die Kombination von $M$ und $T$ ist. Des Weiteren ist $w(T)\leq w(H')$, weil $H'$ stets einen Spannbaum enthält und daher mindestens so groß ist wie der minimale Spannbaum.
+
+Seien nun $M'$ und $M''$ beliebige, disjunkt perfekte Matchings des von den Knoten mit ungeraden Grad induzierten Teilgraphen $U$ von $T$, dann gilt $w(M')\geq w(M)$ und $w(M'')\geq w(M)$, weil $M$ ein perfektes, kostenminimales Matching ist. $A$ sei im Folgenden der Kreis, der alle Knoten aus $M'\cup M''$ in der Reihenfolge abläuft, in der sie auf dem perfekten Hamiltonweg $H'$ liegen. Wegen der Dreiecksungleichung gilt nun $w(A)\leq w(H')$. Da die Anzahl aller Knoten mit ungeradem Grad gerade ist, kann sich aus den Matchings $M'$ und $M''$ immer $A$ ergeben. Daher gilt 
+\begin{align*}
+2 w(M)\leq w(M')+w(M'').
+\end{align*}
+ Da $w(M')+w(M'')=w(A)$ ist, gilt weiterhin
+\begin{align*} 
+2 w(M)\leq w(A).
+\end{align*}
+ Daher gilt 
+\begin{align*}
+w(M)\leq \frac{1}{2} w(A)\leq \frac{1}{2} w(H').
+\end{align*}
+ Deshalb ergibt sich
+\begin{align*}
+w(H)\leq w(T)+w(M)\leq \frac{3}{2} w(H').
+\end{align*}
+
+Somit hat der Algorithmus von Christofides den Approximationsfaktor $\frac{3}{2}$.

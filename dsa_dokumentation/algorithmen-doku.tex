@@ -1,0 +1,81 @@
+\section{Algorithmen}
+\authors{Philipp Davydov und Petula Diemke}
+	
+\begin{figure}[h]
+
+	\centering
+	\begin{tikzpicture}[node distance = 3cm, auto]
+    % Place nodes
+    \node [block] (zahlen) {Zahlen $a, b$};
+    \node [block, below of=zahlen, node distance=2cm] (bnull) {$b = 0?$};
+    \node [block, below of=bnull, node distance=2cm] (agrb) {$a > b?$};
+    \node [block, left of=agrb, node distance=2.75cm] (bbma) {$b := b - a$};
+    \node [block, right of=agrb, node distance=2.75cm] (aamb) {$a := a - b$};
+    \node [cloud, right of=zahlen, node distance=3cm] (a) {$a$};
+ 
+    \path [line] (zahlen) -- (bnull);
+    \path [line] (bnull) -- node {nein} (agrb);
+    \path [line] (agrb) -- node {nein}(bbma);
+    \path [line] (agrb) -- node {ja} (aamb);
+    \path [line] (bbma) |- (bnull);
+    \path [line] (aamb) |- (bnull);
+    \path [line] (bnull) -- node {ja}(a);
+		
+\end{tikzpicture}
+
+		\caption{Flowchart für Euklidischen Algorithmus}
+		\label{flowchart}
+\end{figure}
+
+	\subsection{Was ist ein Algorithmus?}
+	
+	Ein Algorithmus ist ein Verfahren zur Lösung eines bestimmten Problems. Der Begriff ist in verschiedenen Quellen unterschiedlich definiert worden, aber es existieren dennoch Kriterien, die einen typischen Algorithmus ausmachen.
+	Der Algorithmus selbst ist eine Sequenz von Operationen, die auf einen vorher eingegebenen Input angewendet werden. Diese Sequenz hat das Ziel, ein bestimmtes Ergebnis auszugeben, welches von dem Input abhängt; z.\,B. ermittelt der Euklidische Algorithmus den größten gemeinsamen Teiler zweier natürlicher Zahlen (siehe Abb. \ref{flowchart}).
+	Weitere Merkmale sind eine endliche Beschreibung und eine endliche Anzahl der ausgeführten Schritte.
+	
+	\subsection{Wie werden Algorithmen notiert?}
+\begin{figure}
+\begin{lstlisting}[language={[LaTeX]TeX}]
+Input:Zwei natürliche Zahlen a und b
+Ist b = 0?:
+ Wenn ja, gib a aus
+ Wenn nein:
+  Prüfe, ob a > b:
+   Wenn ja, setze a auf (a - b) 
+   Wenn nein, setze b auf (b - a) 
+  Kehre zu "Ist b = 0?" zurück
+\end{lstlisting}	
+\caption{Pseudo-Code für Euklidischen Algorithmus}
+\label{pseudo}
+\end{figure}
+
+\begin{figure}
+\begin{lstlisting}
+def euklid (a,b):
+  while True:
+    if b == 0:
+      return a
+    else:
+      if a > b:
+        a = a - b
+      else:
+        b = b - a
+\end{lstlisting}
+\caption{Python-Code für Euklidischen Algorithmus}
+\label{python}
+\end{figure}
+
+Ein Algorithmus kann auf verschiedene Arten schriftlich festgehalten werden. Informelle, aber häufig benutzte Notationen sind die Beschreibung der durchzuführenden Operationen in Worten, als Flowchart (siehe Abb. \ref{flowchart}) oder mithilfe von anderen bildlichen Darstellungsweisen. 
+Eine formellere Möglichkeit ist der Pseudo-Code (also eine \glqq Programmiersprache in Worten\grqq \, die sich nicht auf eine bestimmte Syntax festlegt, siehe Abb. \ref{pseudo}). Die formellste und zugleich meistgenutzte Notationsweise ist eine tatsächliche Programmiersprache, z.\,B. Python (siehe Abb. \ref{python}), was den Vorteil der (sofortigen) Anwendbarkeit nach sich zieht.
+
+
+	\subsection{Was zeichnet einen guten Algorithmus aus?}
+	Ein guter Algorithmus strebt mehrere Ziele an. Eines der wichtigsten Kriterien ist eine möglichst kurze Laufzeit, also eine möglichst schnelle Ermittlung der Lösung. Der Speicherverbrauch wird dabei idealerweise möglichst klein gehalten, da der Speicherplatz in der Praxis immer begrenzt ist. Weiterhin sollte ein guter Algorithmus für andere Entwickler nachvollziehbar sein, damit sie diesen für ihre Zwecke abwandeln oder erweitern können.
+	\subsection{Wie ist die Laufzeit definiert?}
+	Die Laufzeit ist ein wichtiger Parameter eines Algorithmus. Sie hängt von der Größe des Inputs, z.\,B. in der Graphentheorie von der Anzahl $n$ der Knoten eines Graphen, ab. Dabei kann die Laufzeit anhand ihres Verhaltens bei wachsendem $n$ klassifiziert und in sogenannte Laufzeitklassen einteilt werden. Einige wichtige davon sind:
+	\begin{itemize}
+	\item $\Theta(n) \rightarrow$ Die Laufzeit hängt linear vom Input ab.
+	\item $\Theta(n^2)\rightarrow$ Die Laufzeit hängt quadratisch vom Input ab.
+	\item $\Theta (2^n) \rightarrow$ Die Laufzeit hängt exponentiell vom Input ab.
+	\end{itemize}
+	Generell gelten Laufzeitklassen, die polynomiell in $n$ sind, als effizient ($n$;\ $2n$ ;\ $n^2$ ;\ etc.), während exponentielle Laufzeitklassen ($2^n$) sehr ineffizient sind. Abhängig von der Anwendung wird bei der Klassifizierung entweder vom \glqq average case\grqq \ oder, häufiger, vom \glqq worst case\grqq \ ausgegangen.

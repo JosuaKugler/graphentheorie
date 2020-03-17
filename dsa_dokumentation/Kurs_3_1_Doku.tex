@@ -1,0 +1,115 @@
+\documentclass{doku2018}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{blindtext}
+\usepackage{amsmath,amssymb,amsthm,amstext}
+\usepackage{asymptote}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{bookmark}
+\usepackage{hyperref}
+\usetikzlibrary{graphs, shapes, arrows, snakes, positioning, fit}
+\lstset{literate=%
+  {Ö}{{\"O}}1
+  {Ä}{{\"A}}1
+  {Ü}{{\"U}}1
+  {ß}{{\ss}}1
+  {ü}{{\"u}}1
+  {ä}{{\"a}}1
+  {ö}{{\"o}}1
+}
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+\tikzstyle{cloud} = [draw, ellipse,fill=red!20, node distance=3cm,
+    minimum height=4em, minimum width=4em]
+\newcommand\wichtig[1]{\textbf{#1}}
+\usepackage{hologo} % für LaTeX-Logos
+%\usepackage{TheSansOsF}
+\newtheorem{df}{Definition}
+\newtheorem{satz}{Satz}
+\newtheorem{fakt}{Fakt}
+\newtheorem{lemma}{Lemma}
+\newtheorem{korollar}{Korollar}
+
+\academy{Akademie Grovesmühle}{2018}{3}
+
+
+%%%Die folgenden 5 Befehle werden zum Zeichnen der Kugel mit dem Graphen auf der Oberfläche benötigt:
+\newcommand\pgfmathsinandcos[3]{
+  \pgfmathsetmacro#1{sin(#3)}
+  \pgfmathsetmacro#2{cos(#3)}
+}
+\newcommand\LongitudePlane[3][current plane]{
+  \pgfmathsinandcos\sinEl\cosEl{#2}
+  \pgfmathsinandcos\sint\cost{#3}
+  \tikzset{#1/.style={cm={\cost,\sint*\sinEl,0,\cosEl,(0,0)}}}
+}
+\newcommand\LatitudePlane[3][current plane]{
+  \pgfmathsinandcos\sinEl\cosEl{#2}
+  \pgfmathsinandcos\sint\cost{#3}
+  \pgfmathsetmacro\yshift{\cosEl*\sint}
+  \tikzset{#1/.style={cm={\cost,0,0,\cost*\sinEl,(0,\yshift)}}}
+}
+\newcommand\DrawLongitudeCircle[2][1]{
+  \LongitudePlane{\angEl}{#2}
+  \tikzset{current plane/.prefix style={scale=#1}}
+  \pgfmathsetmacro\angVis{atan(sin(#2)*cos(\angEl)/sin(\angEl))}
+  \draw[current plane] (\angVis:1) arc (\angVis:\angVis+180:1);
+  \draw[current plane,dashed] (\angVis-180:1) arc (\angVis-180:\angVis:1);
+}
+\newcommand\DrawLatitudeCircle[2][1]{
+  \LatitudePlane{\angEl}{#2}
+  \tikzset{current plane/.prefix style={scale=#1}}
+  \pgfmathsetmacro\sinVis{sin(#2)/cos(#2)*sin(\angEl)/cos(\angEl)}
+  \pgfmathsetmacro\angVis{asin(min(1,max(\sinVis,-1)))}
+  \draw[current plane] (\angVis:1) arc (\angVis:-\angVis-180:1);
+  \draw[current plane,dashed] (180-\angVis:1) arc (180-\angVis:\angVis:1);
+}%%%
+
+\definecolor{black}{RGB}{0, 0, 0}
+
+\begin{document}
+\tableofcontents
+
+ \course[Baum Wald Fluss]{Baum Wald Fluss}{1}{\includegraphics[width=.9\textwidth]{img/Titelbild-neu.png}}
+\input{Kapitel_1}
+
+\input{Einfuehrungdoku}
+
+\input{Formalismus}
+
+\input{faerbbarkeit}
+
+\input{planaritaet_neu}
+
+\input{philosophie}
+
+\input{algorithmen-doku}
+
+\input{python}
+
+\input{hamilton_und_EULER}
+
+\input{Topologie}
+
+\input{FuenffarbensatzBeweis}
+
+\input{Isomorphismus}
+
+\input{matching}
+
+\input{algo}
+
+\input{Programmierprojekt}
+
+\input{Feldexperiment_Doku}
+
+\begin{thebibliography}{90}
+\bibitem{quelle1}halo i bims 1 quelle
+\bibitem{qdf1}{Davis/Hersh: Erfahrung Mathematik, Birkhäuser 1985, S. 109}
+\bibitem{qdf2}{Spektrum der Wissenschaft 1 / 2001, Seite 105;  Spektrum der Wissenschaft Verlagsgesellschaft}
+\bibitem{jahreszahl}Nachweis der Jahreszahl: \url{https://docs.python.org/3/license.html}, Zugriff: 16.7.18
+\end{thebibliography}
+\end{document}

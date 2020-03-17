@@ -1,0 +1,95 @@
+%\documentclass{doku2018}
+%\usepackage[utf8]{inputenc}
+%\usepackage[ngerman]{babel}
+%\usepackage{blindtext}
+%\usepackage{amsmath}
+%\usepackage{hologo}
+
+%\begin{document}
+\section{Formalismus und Beweisf{\"u}hrung}
+\authors{Felix Forner und Anna Siess}
+\subsection{Formalismus}
+
+In der Mathematik dient in der Regel die \textbf{Pr{\"a}dikatenlogik} als Grundlage f{\"u}r Schlussfolgerungen und Beweise. Wir arbeiten meistens mit einer Pr{\"a}dikatenlogik, in der es nur die Wahrheitswerte {\glqq wahr\grqq} und {\glqq falsch\grqq} gibt, wobei eine Aussage immer genau einen davon hat. Pr{\"a}dikate sind Aussagen mit Platzhaltern.
+
+\subsubsection{Verkn{\"u}pfungen}
+
+Der Zusammenhang zweier Aussagen lässt sich durch Verknüpfungen herstellen, die durch folgende Operatoren repr{\"a}sentiert werden.
+\begin{itemize}
+\item	\textbf{Konjunktion $A\land B$}: wahr, wenn sowohl $A$ als auch $B$ wahr sind. 
+\item \textbf{Disjunktion $A\lor B$}: wahr, wenn mindestens eine der Aussagen wahr ist. 
+\item	\textbf{Negation $\neg A$}: wahr, wenn $A$ falsch ist. 
+\item	\textbf{Implikation $A \Rightarrow B$}: wahr, wenn die Wahrheit von $A$ stets die Wahrheit von $B$ nach sich zieht. D.\,h., dass $A \Rightarrow B$ nur falsch ist, wenn $A$ wahr und $B$ falsch ist. Wenn $A \Rightarrow B$ und $A$ wahr sind, so muss also auch $B$ wahr sein. Hat $A$ den Wahrheitswert falsch, so kann $B$ sowohl wahr als auch falsch sein.
+\item	\textbf{{\"A}quivalenz $A \Leftrightarrow B$}: wahr, wenn $A$ und $B$ die gleichen Wahrheitswerte haben.
+\end{itemize}
+
+\subsubsection{Quantoren}
+
+Quantoren drücken aus, für welche Objekte eine Aussage gilt. Man unterscheidet im Wesentlichen zwischen zwei Quantoren.
+\begin{itemize}
+	\item \textbf{Existenzquantor $\exists$}: \glqq es gibt ein\grqq
+	\item \textbf{Allquantor $\forall$}: \glqq f{\"u}r alle\grqq
+\end{itemize}
+Bsp.: $\forall n\in \mathbb{N}: n\in \mathbb{Z}$
+(Jede natürliche Zahl ist auch eine ganze Zahl.)
+
+
+
+\subsection{Beweise}
+
+Um logische Schlussfolgerungen, sogenannte \textbf{Ableitungen}, vornehmen zu k{\"o}nnen, sind Grundlagen n{\"o}tig, die \textbf{Axiome} genannt werden. Aus diesen kann man weitere Fakten folgern. Axiome sind dadurch gekennzeichnet, dass sie selbst nicht durch Schlussfolgerungen begründet werden können. Meist wird die Zermelo-Fraenkel-Mengenlehre als Basis verwendet. Strukturierte Ableitungsketten, also eine Reihe von aufeinander aufbauenden Ableitungen, sind \textbf{Beweise}. Es gibt verschiedene Arten von Beweisen, die sich durch die Strategien auszeichnen, die ihnen zu Grunde liegen.
+
+\begin{itemize}
+	\item \textbf{Direkter Beweis}
+	
+Wahrheit von $B$ wird durch Implikationen aus der Wahrheit von $A$ gefolgert.
+	
+Bsp.: Zu beweisen ist, dass die Summe dreier aufeinanderfolgender nat{\"u}rlicher Zahlen stets durch drei teilbar ist.
+\begin{proof}
+Sei $n$ eine nat{\"u}rliche Zahl, dann sind die folgenden nat{\"u}rlichen Zahlen $n+1$ und $n+2$.
+Die Summe dieser drei Zahlen ist also $n+(n+1)+(n+2)=n+n+n+1+2=3n+3$
+Sowohl $3n$ als auch $3$ sind durch drei teilbar.
+Damit ist auch $3n+3$, also die Summe dreier aufeinanderfolgender nat{\"u}rlicher Zahlen durch drei teilbar.
+\end{proof}
+	\item \textbf{Indirekter Beweis}	
+
+Annahme des Gegenteils und Herleitung eines Widerspruchs.
+	\item \textbf{(Gegen-)Beispiel}
+	
+Zeigen einer $\exists$-Aussage (\glqq es existiert ein\grqq) durch Beispiel oder Widerlegen einer $\forall$-Aussage (\glqq f{\"u}r alle ... gilt\grqq) durch Gegenbeispiel.
+	
+Bsp.: Um die Aussage {\glqq Es gibt keine Primzahlzwillinge\grqq} zu widerlegen, gen{\"u}gt es, ein Gegenbeispiel anzuf{\"u}hren, z.\,B. die Zahlen 3 und 5. (Anmerkung: Primzahlzwillinge sind zwei Primzahlen mit einer Differenz von 2.)
+	\item \textbf{Kontraposition}
+
+Betrachtung  von  $\neg B \Rightarrow \neg A$ statt $A \Rightarrow B$, da diese beiden Aussagen {\"a}quivalent sind.
+
+Bsp.: Anstatt zu zeigen, dass jedes gleichseitige Dreieck gleichschenklig ist ({\glqq D ist gleichseitig.\grqq} $\Rightarrow$ {\glqq D ist gleichschenklig.\grqq}) gen{\"u}gt es, zu beweisen, dass jedes Dreieck, das nicht gleichschenklig ist, auch nicht gleichseitig sein kann ({\glqq D ist nicht gleichschenklig.\grqq} $\Rightarrow$ {\glqq D ist nicht gleichseitig.\grqq}).
+	\item \textbf{o.\,B.\,d.\,A.} (ohne Beschr{\"a}nkung der Allgemeinheit)
+	
+Betrachtung eines einfachen Falls bei symmetrischen Problemen. Demnach reicht es, falls mehrere F{\"a}lle vorliegen, die analog zueinander sind, einen zu behandeln. Unter Symmetrien fallen nicht nur geometrische, sondern auch abstrakte Symmetrien.
+
+	\item \textbf{Ringschluss}
+	
+	Gelten die Implikationen $(A_{1} \Rightarrow A_{2}), (A_{2} \Rightarrow A_{3}),\dotsc , (A_{k-1} \Rightarrow A_{k}), (A_{k} \Rightarrow A_{1})$, so sind die Aussagen $A_{1}, A_{2}, A_{3},\dotsc , A_{k-1}, A_{k}$ {\"a}quivalent.
+	\item \textbf{Induktion}
+	
+	Möchte man beweisen, dass eine Aussage $A$ für jede nat{\"u}rliche Zahl $n\geq n_{0}$ gilt, so hilft oft ein induktives Verfahren.
+	Eine Aussage $A(n)$ ist für jedes $n$ wahr, wenn
+	
+	(1) $A(n_{0})$ wahr ist (Induktionsanfang) und
+	
+	(2) $\forall n \geq n_{o}$: Ist $A(n)$ wahr, so ist auch $A(n+1)$ wahr (Induktionsschritt).
+	
+	Bsp.: Zu beweisen ist, dass $n(n+1)$ für jede natürliche Zahl $n$ gerade ist.
+	\begin{proof}
+	Induktionsanfang: 
+	Für $n=1$ gilt: $1(1+1)=2$.\\
+	Induktionsschritt: Es ist zu zeigen, dass die Aussage unter der Annahme, dass sie für $n$ gilt, auch für $n+1$ gilt.
+	Setzt man $n+1$ in den Term ein, so erh{\"a}lt man:
+	$(n+1)(n+1+1)=(n+1)(n+2)$.
+	Durch Umformung erh{\"a}lt man $(n+1)(n+2)=n(n+1)+2(n+1)$. Dabei handelt es sich um eine Summe mit den Summanden $n(n+1)$ und $2(n+1)$. Sind beide Summanden gerade, so auch die Summe. Die Induktionsannahme besagt, dass $n(n+1)$ gerade ist, wobei es sich um den ersten Summanden handelt. Der zweite Summand $2(n+1)$ ist offensichtlich ein Vielfaches von $2$ und damit gerade. Somit ist auch $n(n+1)+2(n+1)$ gerade. Hiermit ist bewiesen, dass $n(n+1)$ für jede nat{\"u}rliche Zahl $n$ gerade ist.
+	\end{proof}
+	
+\end{itemize}
+
+%\end{document}

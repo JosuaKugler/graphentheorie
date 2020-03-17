@@ -1,0 +1,57 @@
+\section{Python}
+\authors{Sebastian Leon Schmidt und Florian Weiser}
+\wichtig{Python}\footnote{Der Name basiert auf der britischen Komikergruppe Monty Python.} ist eine im Jahr 1991 \cite[s. Literaturverzeichnis]{jahreszahl} veröffentlichte Programmiersprache. Sie gilt als einsteigerfreundlich, unter anderem wegen der dynamischen Typisierung, wodurch Datentypen nicht schon im Code festgelegt werden müssen. Quellcode in Python wird erst während der Laufzeit des Programms vom Interpreter in ausführbaren Computercode verwandelt. Dadurch benötigt Python, verglichen mit kompilierten Programmiersprachen, oft eine längere Laufzeit. Die Entwicklung von Python hat Teile anderer Programmiersprachen wie JavaScript und Swift\footnote{Dies ist die Programmiersprache, in welcher Apps für den Apple Appstore programmiert werden} beeinflusst.
+
+\subsection{Vorteile}
+Pythonquellcode hat durch Schlüsselwörter wie \wichtig{if, while} oder \wichtig{for}, die einfaches Englich sind, eine gut lesbare Struktur.  Durch den einfach lesbaren Quellcode ist Python für Anfänger geeignet, erfahreneren Entwickelnden hilft die Ähnlichkeit der Syntax zu anderen Programmiersprachen. Eine Besonderheit von Python ist, dass Blöcke nicht durch Klammern, sondern durch Einrückungen voneinander getrennt werden.
+
+\subsection{Zen of Python}
+Die Philosophie von Python besagt, dass es genau einen offensichtlichen Weg geben sollte, ein Problem zu lösen. Zudem gibt es unterschiedliche Grundprinzipien wie: \glqq Fehler sollen niemals umbemerkt auftreten\grqq . Dementsprechend sollten unerwartet auftretende Fehler bei der Ausführung des Programms nicht abgefangen, sondern ausgegeben werden, damit die jeweiligen Entwickelnden das Problem einfacher erkennen können.
+
+\subsection{Mathematik in Python}
+Python bietet Befehlsstrukturen für Mathematiker, um mathematische Probleme zu modelieren und zu berechnen. Teile von diesen werden im Folgenden vorgestgellt.
+
+\subsubsection{Mengen}
+Das Rechnen mit Mengenoperatoren ist ohne Importe, d. h. man benötigt keine zusätzlichen Module von Python, möglich. Im folgenden Beispiel werden zwei Mengen definiert und deren Vereinigungsmenge gebildet.
+\begin{lstlisting}
+m = {3, 5, 6, 76}
+n = {1, 2, 3, 4, 5}
+v = m.union(n)
+\end{lstlisting}
+
+\subsubsection{Tupel}
+Ein Tupel fasst eine bestimmte Anzahl an Elementen zusammen, kann nicht verändert werden und besitzt eine feste Reihenfolge.\\
+Dieses Beispiel $d = (3, 4)$ zeigt ein 2 Tupel $d$ mit den natürliche Zahlen 3 und 4 als Elemente.
+In Python können Tupel folgendermaßen definiert werden.
+\begin{lstlisting}
+tuple(itertools.combinations(
+      '12345', 3))
+\end{lstlisting}
+In diesem Beispiel werden alle Kombinationen aus drei Zeichen von den fünf Ziffern als Tupel zurückgegeben.
+
+\subsubsection{Generatoren}
+Ein Generator ist ein Objekt, das eine Reihe von einzelnen Werten oder Objekten hintereinander berechnet und ausgibt. 
+Die ausgegebenen Werte oder Objekte erfüllen vom Entwickelnden definierte Bedingungen. Zum Beispiel kann ein Generator unter der Bedingung erstellt werden, dass die einzelnen Elemente nicht durch eine gewisse Primzahl teilbar sind.
+\begin{lstlisting}
+gen = (i*i for i in range(20) 
+           if i % 2 == 0)
+\end{lstlisting}
+Die obere Zeile zeigt einen Quellcodeausschnitt, in welchem ein Generator erstellt wird, der mit Hilfe der geraden, unquadrierten Zahlen im Bereich 0 bis 19 die Quadratzahlen errechnet. Anschließend lässt sich mit $next(gen)$
+der nächste Wert, beginnend mit dem Intervallanfang, zurückgeben.
+
+\subsubsection{Dictionaries (Dicts)}
+Ein Dictionary besteht aus Schlüssel-Wert-Paaren. Dies bedeutet, dass jedes Schlüsselwort mit genau einem Wert oder Objekt verknüpft ist. Durch die eindeutige Zuordnung von Schlüsselwort und Objekt ist ein Dictionary vergleichbar mit einer mathematischen Abbildung. In Python werden Dictionaries wie folgt definiert.
+\begin{lstlisting}
+d = {"Hans": 76, "Peter": 69}
+print(d["Hans"])
+\end{lstlisting}
+Die Schlüsselwörter aus diesem Beispiel sind \glqq Hans\grqq \ und \glqq Peter\grqq , die auf die Werte 76 und 69 referenzieren (zugehöriges Alter). In der zweiten Zeile wird der mit dem Schlüsselwort \glqq Hans\grqq{} verknüpfte Wert 76 ausgegeben.
+
+
+%\subsubsection{Listen}
+%\begin{lstlisting}
+%l = [1, 3, 3]
+%(I)	l[0]
+%(II)	l.append(7)
+%\end{lstlisting}
+%Listen sind dynamische Datenstrukturen, die eine Menge von Elementen in geordneter Reihenfolge speichern. Man kann mit (I) auf eine bestimme Speicherzelle zugreifen und mit (II) eine weitere Speicherzelle anhängen. Das erste Element besitzt den Index 0, alle weiteren sind aufsteigend nummeriert. \\

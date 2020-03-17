@@ -1,0 +1,29 @@
+\documentclass[12pt]{article}
+\usepackage{ucs}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath,amssymb,amstext,amsthm}
+\usepackage[fleqn,tbtags]{mathtools}
+\usepackage{tikz}
+\begin{document}
+\begin{tikzpicture}
+\node[circle,draw](n1) at (0.0:6){n1};
+\node[circle,draw](n2) at (45.0:6){n2};
+\node[circle,draw](n3) at (90.0:6){n3};
+\node[circle,draw](n4) at (135.0:6){n4};
+\node[circle,draw](n5) at (180.0:6){n5};
+\node[circle,draw](n6) at (225.0:6){n6};
+\node[circle,draw](n7) at (270.0:6){n7};
+\node[circle,draw](n8) at (315.0:6){n8};
+\draw (n1)--(n2);
+\draw (n3)--(n2);
+\draw (n1)--(n3);
+\draw (n1)--(n5);
+\draw (n3)--(n6);
+\draw (n1)--(n7);
+\draw (n1)--(n8);
+\draw (n5)--(n7);
+\draw (n6)--(n8);
+\end{tikzpicture}
+\end{document}
